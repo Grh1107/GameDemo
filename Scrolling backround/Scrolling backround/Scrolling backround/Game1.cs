@@ -30,7 +30,19 @@ namespace Scrolling_backround
         ParticleGeneratorC frontRain;
         ParticleGeneratorC backRain;
 
+        SingleScreen TitleScreen;
+        SingleScreen EndScreen;
+
         Song RainSound;
+        SoundEffect Ow;
+
+        StateOfGame GameState = StateOfGame.MainMenu; 
+        enum StateOfGame
+        {
+            MainMenu = 0,
+            Play,
+            End
+        }
 
         public Game1()
         {
@@ -57,12 +69,17 @@ namespace Scrolling_backround
         /// </summary>
         protected override void LoadContent()
         {
+            
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            TitleScreen = new SingleScreen(Content.Load<Texture2D>("Title"), graphics.GraphicsDevice);
+            EndScreen = new SingleScreen(Content.Load<Texture2D>("End"), graphics.GraphicsDevice);
+
+
+            #region Game Play Load
             RainSound = Content.Load<Song>("rain");
-            MediaPlayer.Play(RainSound);
-            MediaPlayer.Volume = .25f;
-            MediaPlayer.IsRepeating = true;
+            Ow = Content.Load<SoundEffect>("Ow");
             frontRain = new ParticleGeneratorC(Content.Load<Texture2D>("raindrop"), graphics.GraphicsDevice.Viewport.Width, 25);
             backRain = new ParticleGeneratorC(Content.Load<Texture2D>("raindrop"), graphics.GraphicsDevice.Viewport.Width, 66, .7f, 2f);
             Health = new HealthBar(Content.Load<Texture2D>("HealthBar"), new Vector2(30));
@@ -75,6 +92,7 @@ namespace Scrolling_backround
                 new Vector2(50, 450), 47, 44);
             Turret = new Sentry(Content.Load<Texture2D>("Enemys/Sentry"), Content.Load<Texture2D>("Enemys/Bullets"), 
                 Character.Position, new Vector2(400, 100), Content.Load<SoundEffect>("shot"));
+            #endregion
         }
 
         /// <summary>
@@ -94,23 +112,101 @@ namespace Scrolling_backround
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
+            switch (GameState)
+            {
+                case StateOfGame.MainMenu:
+                    if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                    {
+                        MediaPlayer.Play(RainSound);
+                        MediaPlayer.Volume = .25f;
+                        MediaPlayer.IsRepeating = true;
+                        GameState = StateOfGame.Play;
+                    }
+                    break;
+                case StateOfGame.Play:
+                    
+                    #region Game Play Update
+                    // TODO: Add your update logic here
+                    frontRain.Update(gameTime, graphics.GraphicsDevice);
+                    backRain.Update(gameTime, graphics.GraphicsDevice);
+                    Bounds();
+                    FireMechanism(gameTime);
+                    ScrollA.update();
+                    ScrollB.update();
+                    Character.Update(gameTime);
+                    if (Health.HP == 0)
+                    {
+                        GameState = StateOfGame.End;
+                    }
+                    Turret.CharDetails(Character.Position, Character.Velocity);
+                    Turret.Update();
+                    Turret.UpdateBullets();
+                    GotShot();
+                    #endregion
+                    
+                    break;
+                case StateOfGame.End:
+                    if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                    {
+                        MediaPlayer.Stop();
+                        GameState = StateOfGame.MainMenu;
+                    }
+                    break;
+            }
 
-            // TODO: Add your update logic here
-            frontRain.Update(gameTime, graphics.GraphicsDevice);
-            backRain.Update(gameTime, graphics.GraphicsDevice);
-            
-            Bounds();
-            FireMechanism(gameTime);
-            ScrollA.update(); 
-            ScrollB.update();
-            Character.Update(gameTime);
-            Turret.CharDetails(Character.Position, Character.Velocity);
-            Turret.Update();
-            Turret.UpdateBullets();
-            GotShot();
+
             base.Update(gameTime);
+        }
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+
+            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            switch (GameState)
+            {
+                case 0:
+                    TitleScreen.Draw(spriteBatch);
+                    break;
+                case (StateOfGame)1:
+
+                    #region Game Play Draw
+                    ScrollA.Draw(spriteBatch);
+                    ScrollB.Draw(spriteBatch);
+                    backRain.Draw(spriteBatch);
+                    Character.Draw(spriteBatch);
+                    Turret.Draw(spriteBatch);
+                    frontRain.Draw(spriteBatch);
+                    Health.Draw(spriteBatch);
+                    /*Texture2D test = Content.Load<Texture2D>("Black tile");
+                    Rectangle PRect = new Rectangle((int)Character.Position.X - Character.frameWidth / 2, (int)Character.Position.Y - Character.frameHeight / 2, Character.frameWidth, Character.frameHeight);
+                    spriteBatch.Draw(test, PRect, Color.Orange);
+
+                    Texture2D testA = Content.Load<Texture2D>("Black tile");
+                    foreach (Bullets bullet in Turret.bullets)
+                    {
+                        Rectangle BRect = new Rectangle((int)bullet.position.X, (int)bullet.position.Y, Turret.BulletTexture.Width, Turret.BulletTexture.Height);
+                        spriteBatch.Draw(testA, BRect, Color.Orange);
+                    }*/
+                    #endregion
+                    
+                    break;
+                case StateOfGame.End:
+                    EndScreen.Draw(spriteBatch);
+                    break;
+            }
+
+            spriteBatch.End();
+
+
+            base.Draw(gameTime);
         }
 
         float ShotTime = 0;
@@ -123,10 +219,9 @@ namespace Scrolling_backround
             {
                 Turret.Shoot();
                 ShotTime = 0;
-                // ~1/5 times changes the shot interval 
-                if (Rand.Next(0, 5) == 4)
+                if (Rand.Next(0, 3) == 2)
                 {
-                    ShotInterval = (float)(Rand.Next(20, 100) / 100.0);
+                    ShotInterval = (float)(Rand.Next(10, 80) / 100.0);
                 }
             }
 
@@ -147,8 +242,8 @@ namespace Scrolling_backround
                     if (GS)
                     {
                         bullet.Hit = true;
-                        Health -= 5;
-                        Console.WriteLine("Ouchies");
+                        Health -= 10;
+                        Ow.Play();
                     }
                 }
             }
@@ -172,40 +267,6 @@ namespace Scrolling_backround
             {
                 ScrollA.rectangle.X = ScrollB.rectangle.X - ScrollA.texture.Width;
             }
-        }
-
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-            spriteBatch.Begin();
-            ScrollA.Draw(spriteBatch);
-            ScrollB.Draw(spriteBatch);
-            backRain.Draw(spriteBatch);
-            Character.Draw(spriteBatch);
-            Turret.Draw(spriteBatch);
-            frontRain.Draw(spriteBatch);
-            Health.Draw(spriteBatch);
-            /*Texture2D test = Content.Load<Texture2D>("Black tile");
-            Rectangle PRect = new Rectangle((int)Character.Position.X - Character.frameWidth / 2, (int)Character.Position.Y - Character.frameHeight / 2, Character.frameWidth, Character.frameHeight);
-            spriteBatch.Draw(test, PRect, Color.Orange);
-
-            Texture2D testA = Content.Load<Texture2D>("Black tile");
-            foreach (Bullets bullet in Turret.bullets)
-            {
-                Rectangle BRect = new Rectangle((int)bullet.position.X, (int)bullet.position.Y, Turret.BulletTexture.Width, Turret.BulletTexture.Height);
-                spriteBatch.Draw(testA, BRect, Color.Orange);
-            }*/
-            
-            spriteBatch.End();
-
-
-            base.Draw(gameTime);
         }
     }
 }

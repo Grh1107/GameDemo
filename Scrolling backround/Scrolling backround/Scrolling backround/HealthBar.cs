@@ -13,6 +13,8 @@ namespace Scrolling_backround
         Vector2 Position;
         Rectangle rectangle;
 
+        public int HP = 100;
+
         public HealthBar(Texture2D H, Vector2 P)
         {
             Health = H;
@@ -32,6 +34,7 @@ namespace Scrolling_backround
             {
                 H.rectangle.Width = 0;
             }
+            H.HP = H.rectangle.Width;
             return H;    
         }
         public static HealthBar operator +(HealthBar H, int HitPecent)
@@ -42,6 +45,7 @@ namespace Scrolling_backround
             {
                 H.rectangle.Width = H.Health.Width;
             }
+            H.HP = H.rectangle.Width;
             return H;
         }
 

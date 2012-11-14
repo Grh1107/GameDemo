@@ -83,6 +83,7 @@
     <Compile Include="Raindrops.cs" />
     <Compile Include="ScrollBackground.cs" />
     <Compile Include="Sentry.cs" />
+    <Compile Include="SingleScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

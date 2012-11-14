@@ -29,6 +29,8 @@ namespace Scrolling_backround
 
         SoundEffect shotsound;
 
+        Random rand = new Random(662);
+
         const float tangentialVelocity = 5f;
         float friction = 0.03f;
 
