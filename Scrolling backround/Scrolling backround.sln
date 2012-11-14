@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scrolling backround", "Scrolling backround\Scrolling backround\Scrolling backround.csproj", "{5FA1EE11-195B-4ADA-8548-6F40AD8CC73C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scrolling backroundContent", "Scrolling backround\Scrolling backroundContent\Scrolling backroundContent.contentproj", "{00EA5CBE-029C-4FA7-A692-BAC3DF4BA875}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5FA1EE11-195B-4ADA-8548-6F40AD8CC73C}.Debug|x86.ActiveCfg = Debug|x86
+		{5FA1EE11-195B-4ADA-8548-6F40AD8CC73C}.Debug|x86.Build.0 = Debug|x86
+		{5FA1EE11-195B-4ADA-8548-6F40AD8CC73C}.Release|x86.ActiveCfg = Release|x86
+		{5FA1EE11-195B-4ADA-8548-6F40AD8CC73C}.Release|x86.Build.0 = Release|x86
+		{00EA5CBE-029C-4FA7-A692-BAC3DF4BA875}.Debug|x86.ActiveCfg = Debug|x86
+		{00EA5CBE-029C-4FA7-A692-BAC3DF4BA875}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
